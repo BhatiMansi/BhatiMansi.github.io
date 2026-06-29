@@ -8,21 +8,12 @@ permalink: /
   <div class="about-hero">
     <img class="profile-photo" src="{{ '/assets/IMG_4121.png' | relative_url }}" alt="Mansi Bhati">
     <div class="about-text">
-      <h2 style="margin-top:0; text-transform:none; font-size:1.5rem; letter-spacing:-0.02em; color:var(--ink); border:none; padding:0;">About me</h2>
+      <h1 class="about-name">Mansi Bhati</h1>
       <p>I'm a computational physicist working at the intersection of numerical linear algebra, GPU computing, and quantum chemistry. I build large-scale iterative eigensolvers and optimize them for real HPC performance — where the math, the hardware, and the wall-clock time all have to agree.</p>
       <p>My recent work spans matrix-free methods, sparse linear algebra on GPUs, and profiling-driven optimization for scientific computing. I care about making hard simulations actually run.</p>
-      <ul class="tags" aria-label="Areas of focus">
-        <li>numerical linear algebra</li>
-        <li>GPU computing</li>
-        <li>iterative eigensolvers</li>
-        <li>matrix-free / sparse methods</li>
-        <li>performance profiling</li>
-        <li>HPC</li>
-      </ul>
-      <p class="inline-links" style="margin-top:1rem;">
+      <p class="inline-links">
         <a href="mailto:{{ site.email }}">{{ site.email }}</a>
         <a href="mailto:{{ site.email_princeton }}">{{ site.email_princeton }}</a>
-        <a href="tel:{{ site.phone }}">{{ site.phone }}</a>
         <span class="contact-plain">{{ site.location }}</span>
         <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
         <a href="https://github.com/{{ site.github_username }}">GitHub</a>
