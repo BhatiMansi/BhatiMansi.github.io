@@ -10,12 +10,6 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
-    <div class="wrap">
-      <a class="brand" href="{{ '/' | relative_url }}">{{ site.author.name }}</a>
-    </div>
-  </header>
-
   <main id="main" class="wrap">
     {{ content }}
   </main>
@@ -27,7 +21,6 @@
         <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
         <a href="mailto:{{ site.email }}">Email</a>
         {% if site.scholar_url != "" %}<a href="{{ site.scholar_url }}">Scholar</a>{% endif %}
-        {% if site.orcid_url != "" %}<a href="{{ site.orcid_url }}">ORCID</a>{% endif %}
       </nav>
       <p class="colophon">© {{ 'now' | date: "%Y" }} {{ site.author.name }}. Built with Jekyll on GitHub Pages.</p>
     </div>

@@ -9,11 +9,12 @@ permalink: /
     <img class="profile-photo" src="{{ '/assets/IMG_4121.png' | relative_url }}" alt="Mansi Bhati">
     <div class="about-text">
       <h1 class="about-name">Mansi Bhati</h1>
-      <p>I'm a computational physicist working at the intersection of numerical linear algebra, GPU computing, and quantum chemistry. I build large-scale iterative eigensolvers and optimize them for real HPC performance — where the math, the hardware, and the wall-clock time all have to agree.</p>
-      <p>My recent work spans matrix-free methods, sparse linear algebra on GPUs, and profiling-driven optimization for scientific computing. I care about making hard simulations actually run.</p>
+      <p>I am a theoretical chemistry PhD student at Princeton, working in Prof. Joe Subotnik's group, where I develop new quantum theories and computational methods to describe how electrons and atomic nuclei move together inside molecules. Most molecular simulations rely on a traditional, century-old framework called the Born–Oppenheimer approximation, which assumes that electrons adjust almost instantly to the motion of the nuclei. While this approach has been enormously successful, it can miss important effects when molecules rotate or vibrate, or when momentum is exchanged between electrons and nuclei.</p>
+      <p>In my research, I go beyond this traditional picture by developing phase-space approaches to electronic structure, in which the electronic problem depends not only on nuclear positions but also on nuclear momenta. This perspective makes it possible to capture geometric forces, such as Coriolis and centrifugal effects in molecules, as well as angular momentum transfer between electrons and nuclei—effects that are often hidden or treated perturbatively in conventional molecular theory.</p>     
+      <p>Computationally, I build and optimize numerical methods for solving the large quantum-mechanical problems that arise from these theories. This includes matrix-free Hamiltonian operators and GPU-accelerated iterative eigensolvers, combining numerical linear algebra with the physical structure of the problem to make calculations practical at production scale.</p>     
+      <p>More broadly, I enjoy working at the interface of theoretical chemistry, quantum mechanics, mathematical physics, and computational science, drawing on ideas from quantum geometry, conservation laws, numerical linear algebra, and high-performance computing to build more accurate and efficient descriptions of molecular motion.</p>
       <p class="inline-links">
-        <a href="mailto:{{ site.email }}">{{ site.email }}</a>
-        <a href="mailto:{{ site.email_princeton }}">{{ site.email_princeton }}</a>
+        <span class="contact-emails"><span class="contact-plain">Email:</span> <a href="mailto:{{ site.email }}">{{ site.email }}</a> <span class="contact-plain">-</span> <a href="mailto:{{ site.email_princeton }}">{{ site.email_princeton }}</a></span>
         <span class="contact-plain">{{ site.location }}</span>
         <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
         <a href="https://github.com/{{ site.github_username }}">GitHub</a>
@@ -46,7 +47,7 @@ permalink: /
 </div>
 
 <div class="item">
-  <h3><a href="{{ '/writing/seminar_slides.pdf' | relative_url }}">3rd-Year Seminar Slides</a></h3>
+  <h3><a href="{{ '/writing/seminar_slides.pdf' | relative_url }}">Third-Year Seminar Slides</a></h3>
   <p class="meta">Slides · PDF</p>
 </div>
 

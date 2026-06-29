@@ -17,7 +17,6 @@ linkedin_handle: "mansi-bhati-3ba813152"
 
 # Optional — leave as "" to hide the link automatically:
 scholar_url: "https://scholar.google.com/citations?user=zBMEW14AAAAJ&hl=en&authuser=1"
-#orcid_url: ""          # e.g. "https://orcid.org/0000-0000-0000-0000"
 
 # Path to your CV PDF (drop the file in /assets/cv.pdf):
 cv_pdf: "/assets/cv.pdf"
@@ -26,7 +25,7 @@ cv_pdf: "/assets/cv.pdf"
 #  You usually don't need to touch anything below this line.
 # ─────────────────────────────────────────────────────────────
 
-title: "Your Name"
+title: "Mansi Bhati"
 description: "Computational physics, numerical linear algebra, and GPU computing."
 lang: en
 

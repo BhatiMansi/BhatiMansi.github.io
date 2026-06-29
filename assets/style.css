@@ -131,6 +131,9 @@ strong { color: var(--ink); font-weight: 650; }
 .inline-links { font-size: .95rem; }
 .inline-links a, .inline-links .contact-plain { margin-right: 1.1rem; white-space: nowrap; }
 .contact-plain { color: var(--body); }
+/* Keep the two emails tight together; only the group separates from the rest */
+.contact-emails { margin-right: 1.1rem; }
+.contact-emails a, .contact-emails .contact-plain { margin-right: 0; }
 
 /* ---- Simple definition-style CV rows ---- */
 .cv-row { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
