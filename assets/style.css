@@ -149,7 +149,7 @@ strong { color: var(--ink); font-weight: 650; }
 .about-section { margin: 1.5rem 0 0; }
 .about-hero { display: flex; gap: 2rem; align-items: flex-start; }
 .profile-photo {
-  width: 80px; height: 80px; border-radius: 50%;
+  width: 110px; height: 110px; border-radius: 50%;
   object-fit: cover; flex-shrink: 0;
   border: 2px solid var(--rule);
   background: var(--chip-bg);

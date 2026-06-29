@@ -54,6 +54,11 @@ permalink: /
   <p class="meta">Notes · PDF coming soon</p>
 </div>
 
+<div class="item">
+  <h3><a href="{{ '/writing/seminar_slides.pdf' | relative_url }}">3rd-Year Seminar Slides</a></h3>
+  <p class="meta">Slides · PDF</p>
+</div>
+
 <h2>Research Papers</h2>
 
 <ul class="paper-list">
