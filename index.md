@@ -4,18 +4,16 @@ title: Home
 permalink: /
 ---
 
-<section class="about-section">
+<section class="about-section" id="about">
   <div class="about-hero">
     <img class="profile-photo" src="{{ '/assets/IMG_4121.png' | relative_url }}" alt="Mansi Bhati">
     <div class="about-text">
       <h1 class="about-name">Mansi Bhati</h1>
-      <p>I am a theoretical chemistry PhD student at Princeton, working in Prof. Joe Subotnik's group, where I develop new quantum theories and computational methods to describe how electrons and atomic nuclei move together inside molecules. Most molecular simulations rely on a traditional, century-old framework called the Born–Oppenheimer approximation, which assumes that electrons adjust almost instantly to the motion of the nuclei. While this approach has been enormously successful, it can miss important effects when molecules rotate or vibrate, or when momentum is exchanged between electrons and nuclei.</p>
-      <p>In my research, I go beyond this traditional picture by developing phase-space approaches to electronic structure, in which the electronic problem depends not only on nuclear positions but also on nuclear momenta. This perspective makes it possible to capture geometric forces, such as Coriolis and centrifugal effects in molecules, as well as angular momentum transfer between electrons and nuclei—effects that are often hidden or treated perturbatively in conventional molecular theory.</p>     
-      <p>Computationally, I build and optimize numerical methods for solving the large quantum-mechanical problems that arise from these theories. This includes matrix-free Hamiltonian operators and GPU-accelerated iterative eigensolvers, combining numerical linear algebra with the physical structure of the problem to make calculations practical at production scale.</p>     
-      <p>More broadly, I enjoy working at the interface of theoretical chemistry, quantum mechanics, mathematical physics, and computational science, drawing on ideas from quantum geometry, conservation laws, numerical linear algebra, and high-performance computing to build more accurate and efficient descriptions of molecular motion.</p>
+      <p class="about-role">Theoretical Chemistry PhD student · Princeton · Subotnik group</p>
+      <p>I develop quantum theories and computational methods for how electrons and atomic nuclei move together inside molecules. My research goes beyond the Born–Oppenheimer approximation with <strong>phase-space approaches to electronic structure</strong>, where the electronic problem depends on nuclear momenta as well as positions—capturing geometric forces and electron–nuclear angular momentum transfer that conventional theory misses.</p>
+      <p>On the computational side, I build matrix-free Hamiltonian operators and GPU-accelerated iterative eigensolvers, working at the interface of theoretical chemistry, numerical linear algebra, and high-performance computing.</p>
       <p class="inline-links">
         <span class="contact-emails"><span class="contact-plain">Email:</span> <a href="mailto:{{ site.email }}">{{ site.email }}</a> <span class="contact-plain">-</span> <a href="mailto:{{ site.email_princeton }}">{{ site.email_princeton }}</a></span>
-        <span class="contact-plain">{{ site.location }}</span>
         <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
         <a href="https://github.com/{{ site.github_username }}">GitHub</a>
         <a href="{{ site.scholar_url }}">Google Scholar</a>
@@ -24,7 +22,7 @@ permalink: /
   </div>
 </section>
 
-<h2>Projects</h2>
+<h2 id="projects">Projects</h2>
 
 <div class="item">
   <h3>Iterative Eigensolvers</h3>
@@ -51,7 +49,7 @@ permalink: /
   <p class="meta">Slides · PDF</p>
 </div>
 
-<h2>Research Papers</h2>
+<h2 id="papers">Research Papers</h2>
 
 <ul class="paper-list">
   <li>
