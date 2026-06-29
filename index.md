@@ -20,40 +20,38 @@ permalink: /
         <li>HPC</li>
       </ul>
       <p class="inline-links" style="margin-top:1rem;">
-        <a href="https://github.com/{{ site.github_username }}">GitHub</a>
-        <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
         <a href="mailto:{{ site.email }}">{{ site.email }}</a>
+        <a href="mailto:{{ site.email_princeton }}">{{ site.email_princeton }}</a>
+        <a href="tel:{{ site.phone }}">{{ site.phone }}</a>
+        <span class="contact-plain">{{ site.location }}</span>
+        <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
+        <a href="https://github.com/{{ site.github_username }}">GitHub</a>
+        <a href="{{ site.scholar_url }}">Google Scholar</a>
       </p>
     </div>
   </div>
 </section>
 
-<h2>Technical Writing</h2>
+<h2>Projects</h2>
 
 <div class="item">
   <h3>Iterative Eigensolvers</h3>
   <p class="meta">Coming soon</p>
-  <p>Placeholder — full write-up coming soon.</p>
 </div>
 
 <div class="item">
   <h3>XeBees</h3>
   <p class="meta">Coming soon</p>
-  <p>Placeholder — full write-up coming soon.</p>
 </div>
 
 <div class="item">
   <h3>Tensor Networks</h3>
   <p class="meta">Coming soon</p>
-  <p>Placeholder — full write-up coming soon.</p>
 </div>
-
-<h2>Projects</h2>
 
 <div class="item">
   <h3>Quantum Geometry — Born–Oppenheimer Notes</h3>
-  <p class="meta">Notes · PDF</p>
-  <p>Placeholder — PDF coming soon.</p>
+  <p class="meta">Notes · PDF coming soon</p>
 </div>
 
 <h2>Research Papers</h2>

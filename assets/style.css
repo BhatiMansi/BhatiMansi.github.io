@@ -98,10 +98,11 @@ strong { color: var(--ink); font-weight: 650; }
 .metric { font-family: var(--mono); font-weight: 600; color: var(--ink); }
 
 /* ---- Project / item blocks ---- */
-.item { padding: 1.25rem 0; border-bottom: 1px solid var(--rule); }
+.item { padding: .5rem 0; border-bottom: 1px solid var(--rule); }
 .item:last-child { border-bottom: 0; }
-.item .meta { color: var(--muted); font-size: .9rem; margin: .15rem 0 .5rem; }
-.item .actions { margin-top: .55rem; font-size: .92rem; }
+.item h3 { margin: 0 0 .1rem; }
+.item .meta { color: var(--muted); font-size: .9rem; margin: 0; }
+.item .actions { margin-top: .4rem; font-size: .92rem; }
 .item .actions a { margin-right: 1.1rem; }
 .item .actions a::before { content: "→ "; color: var(--muted); }
 
@@ -128,7 +129,8 @@ strong { color: var(--ink); font-weight: 650; }
 
 /* ---- Inline contact row on home ---- */
 .inline-links { font-size: .95rem; }
-.inline-links a { margin-right: 1.1rem; white-space: nowrap; }
+.inline-links a, .inline-links .contact-plain { margin-right: 1.1rem; white-space: nowrap; }
+.contact-plain { color: var(--body); }
 
 /* ---- Simple definition-style CV rows ---- */
 .cv-row { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
@@ -147,7 +149,7 @@ strong { color: var(--ink); font-weight: 650; }
 .about-section { margin: 1.5rem 0 0; }
 .about-hero { display: flex; gap: 2rem; align-items: flex-start; }
 .profile-photo {
-  width: 140px; height: 140px; border-radius: 50%;
+  width: 80px; height: 80px; border-radius: 50%;
   object-fit: cover; flex-shrink: 0;
   border: 2px solid var(--rule);
   background: var(--chip-bg);

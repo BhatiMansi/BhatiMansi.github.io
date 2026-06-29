@@ -8,13 +8,16 @@ author:
   tagline: "Computational physics · numerical linear algebra · GPU computing"
 
 email: "mansibhati0599@gmail.com"
+email_princeton: "mb3835@princeton.edu"
+phone: "+1 (267) 670-3103"
+location: "Princeton, NJ"
 
 # Just the handle / path, no full URL needed for these two:
-#github_username: "yourhandle"
-#linkedin_handle: "yourhandle"
+github_username: "BhatiMansi"
+linkedin_handle: "mansi-bhati-3ba813152"
 
 # Optional — leave as "" to hide the link automatically:
-#scholar_url: ""        # e.g. "https://scholar.google.com/citations?user=XXXX"
+scholar_url: "https://scholar.google.com/citations?user=zBMEW14AAAAJ&hl=en&authuser=1"
 #orcid_url: ""          # e.g. "https://orcid.org/0000-0000-0000-0000"
 
 # Path to your CV PDF (drop the file in /assets/cv.pdf):
