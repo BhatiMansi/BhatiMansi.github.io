@@ -6,7 +6,7 @@ permalink: /
 
 <section class="about-section">
   <div class="about-hero">
-    <img class="profile-photo" src="{{ '/assets/photo.jpg' | relative_url }}" alt="Mansi Bhati">
+    <img class="profile-photo" src="{{ '/assets/IMG_4121.png' | relative_url }}" alt="Mansi Bhati">
     <div class="about-text">
       <h2 style="margin-top:0; text-transform:none; font-size:1.5rem; letter-spacing:-0.02em; color:var(--ink); border:none; padding:0;">About me</h2>
       <p>I'm a computational physicist working at the intersection of numerical linear algebra, GPU computing, and quantum chemistry. I build large-scale iterative eigensolvers and optimize them for real HPC performance — where the math, the hardware, and the wall-clock time all have to agree.</p>
@@ -59,6 +59,11 @@ permalink: /
 <h2>Research Papers</h2>
 
 <ul class="paper-list">
+  <li>
+    <strong>Bhati, M.</strong> Cofer-Shabica, D. V., Rawlinson, J. I., Littlejohn, R. G., Subotnik, J., & Bradbury, N. C. (2026)
+    <a href="https://arxiv.org/abs/2605.27053">Electronic Structure in a Phase Space, non-Born-Oppenheimer Framework: Geometric Forces and Moody-Shapere-Wilczek Revisited.</a>
+    <span class="paper-meta">arXiv:2605.27053</span>
+  </li>
   <li>
     Peng, L., Duston, T., Bradbury, N., <strong>Bhati, M.</strong>, Tao, X., Rosen, M., Subotnik, J.E. (2026).
     A Conceptual Shift In Our Understanding of Degenerate Radical Spin Systems: Spin-Rotation Coupling.
@@ -113,10 +118,5 @@ permalink: /
     Mukherjee, S., Kar, M., <strong>Bhati, M.</strong>, Gao, X., Barbatti, M. (2023).
     <a href="https://link.springer.com/article/10.1007/s00214-023-03020-w">On the short and long phosphorescence lifetimes of aromatic carbonyls.</a>
     <span class="paper-meta"><em>Theoretical Chemistry Accounts</em>, 142(9), 85</span>
-  </li>
-  <li>
-    <strong>Bhati, M.</strong> et al.
-    <a href="https://arxiv.org/abs/2605.27053">Electronic Structure in a Phase Space, non-Born-Oppenheimer Framework: Geometric Forces and Moody-Shapere-Wilczek Revisited.</a>
-    <span class="paper-meta">arXiv:2605.27053</span>
   </li>
 </ul>
