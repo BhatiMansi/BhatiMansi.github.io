@@ -18,7 +18,7 @@
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
 
-  --measure: 56rem;
+  --measure: 66rem;
 }
 
 * { box-sizing: border-box; }
@@ -59,7 +59,7 @@ a:hover { color: var(--accent-dk); text-decoration: underline; text-underline-of
   border-bottom: 1px solid var(--rule);
 }
 .site-header-inner {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: flex-end;
   gap: 1.5rem; padding-top: .9rem; padding-bottom: .9rem;
 }
 .brand {
@@ -162,13 +162,13 @@ strong { color: var(--ink); font-weight: 650; }
 .colophon { color: var(--muted); font-size: .82rem; margin: .9rem 0 0; }
 
 /* ---- About / profile section (al-folio style: photo right, bio left) ---- */
-.about-section { margin: 3.5rem 0 0; }
-.about-hero { display: flex; flex-direction: row-reverse; gap: 2.5rem; align-items: flex-start; }
+.about-section { margin: 5rem 0 0; }
+.about-hero { display: flex; flex-direction: row-reverse; gap: 3rem; align-items: flex-start; }
 .profile-photo {
-  width: 240px; height: 300px; border-radius: 8px;
+  width: 260px; height: 325px; border-radius: 8px;
   object-fit: cover; flex-shrink: 0;
   background: var(--chip-bg);
-  margin-top: 3.6rem; /* drop the photo down to align with the bio text */
+  margin-top: 5rem; /* drop the photo down to align with the bio text */
 }
 .about-text { flex: 1; min-width: 0; }
 .about-name {
