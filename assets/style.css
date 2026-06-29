@@ -1,0 +1,155 @@
+/* ============================================================
+   Minimal academic / technical portfolio
+   System fonts only (zero web-font requests = instant load).
+   Signature: monospace for technical tags + metrics.
+   ============================================================ */
+
+:root {
+  --bg:        #ffffff;
+  --ink:       #16181d;
+  --body:      #2b2f36;
+  --muted:     #646b75;
+  --rule:      #e6e8ec;
+  --accent:    #1b4f9c;   /* quiet technical blue */
+  --accent-dk: #133a74;
+  --chip-bg:   #f3f5f8;
+  --chip-ink:  #34404e;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --measure: 42rem;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap { width: 100%; max-width: var(--measure); margin: 0 auto; padding: 0 1.25rem; }
+
+/* ---- Links ---- */
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-dk); text-decoration: underline; text-underline-offset: 2px; }
+
+.skip-link {
+  position: absolute; left: -999px; top: 0;
+  background: var(--ink); color: #fff; padding: .5rem .75rem; border-radius: 4px;
+}
+.skip-link:focus { left: .5rem; top: .5rem; z-index: 10; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+/* ---- Header ---- */
+.site-header { padding: 2.4rem 0 0; }
+.brand {
+  display: inline-block;
+  font-size: 1.5rem; font-weight: 650; letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.brand:hover { text-decoration: none; }
+.brand-tagline {
+  margin: .35rem 0 1.1rem;
+  color: var(--muted); font-size: .95rem;
+}
+.site-nav {
+  display: flex; flex-wrap: wrap; gap: 1.25rem;
+  padding-bottom: 1.1rem; border-bottom: 1px solid var(--rule);
+  font-size: .95rem;
+}
+.site-nav a { color: var(--body); }
+.site-nav a[aria-current="page"] { color: var(--ink); font-weight: 600; }
+
+/* ---- Main flow ---- */
+main { padding: 2rem 0 1rem; }
+main > :first-child { margin-top: 0; }
+
+h1 { font-size: 1.75rem; line-height: 1.2; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 .6rem; }
+h2 {
+  font-size: 1.05rem; letter-spacing: .02em; text-transform: uppercase;
+  color: var(--muted); font-weight: 650;
+  margin: 2.6rem 0 .9rem; padding-bottom: .4rem; border-bottom: 1px solid var(--rule);
+}
+h3 { font-size: 1.12rem; color: var(--ink); margin: 1.6rem 0 .3rem; letter-spacing: -0.01em; }
+p  { margin: 0 0 1rem; }
+strong { color: var(--ink); font-weight: 650; }
+
+.lede { font-size: 1.12rem; color: var(--ink); }
+
+/* ---- Signature: monospace tags ---- */
+.tags { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; padding: 0; margin: .8rem 0 0; }
+.tags li {
+  font-family: var(--mono); font-size: .78rem; letter-spacing: -0.01em;
+  background: var(--chip-bg); color: var(--chip-ink);
+  padding: .2rem .5rem; border-radius: 4px;
+}
+
+/* ---- Signature: metric callout ---- */
+.metric { font-family: var(--mono); font-weight: 600; color: var(--ink); }
+
+/* ---- Project / item blocks ---- */
+.item { padding: 1.25rem 0; border-bottom: 1px solid var(--rule); }
+.item:last-child { border-bottom: 0; }
+.item .meta { color: var(--muted); font-size: .9rem; margin: .15rem 0 .5rem; }
+.item .actions { margin-top: .55rem; font-size: .92rem; }
+.item .actions a { margin-right: 1.1rem; }
+.item .actions a::before { content: "→ "; color: var(--muted); }
+
+.featured {
+  border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+  border-radius: 6px; padding: 1.3rem 1.4rem; margin: 1.2rem 0 0;
+}
+.featured .eyebrow {
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 .4rem;
+}
+.featured h3 { margin-top: 0; }
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-block; font-size: .95rem; font-weight: 600;
+  padding: .55rem 1.05rem; border-radius: 6px;
+  background: var(--ink); color: #fff;
+}
+.btn:hover { background: #000; color: #fff; text-decoration: none; }
+.btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+.btn.secondary:hover { background: var(--chip-bg); }
+.btn-row { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1.2rem 0; }
+
+/* ---- Inline contact row on home ---- */
+.inline-links { font-size: .95rem; }
+.inline-links a { margin-right: 1.1rem; white-space: nowrap; }
+
+/* ---- Simple definition-style CV rows ---- */
+.cv-row { padding: .9rem 0; border-bottom: 1px solid var(--rule); }
+.cv-row:last-child { border-bottom: 0; }
+.cv-row .when { color: var(--muted); font-size: .88rem; font-family: var(--mono); }
+.cv-row .what { color: var(--ink); font-weight: 600; }
+.cv-row .where { color: var(--body); }
+
+/* ---- Footer ---- */
+.site-footer { margin-top: 3rem; padding: 1.6rem 0 2.6rem; border-top: 1px solid var(--rule); }
+.site-footer .links { display: flex; flex-wrap: wrap; gap: 1.1rem; font-size: .95rem; }
+.site-footer .links a { color: var(--body); }
+.colophon { color: var(--muted); font-size: .82rem; margin: .9rem 0 0; }
+
+/* ---- Responsive ---- */
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+  .site-header { padding-top: 1.8rem; }
+  .brand { font-size: 1.35rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

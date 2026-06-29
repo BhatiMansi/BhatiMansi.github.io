@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────
+#  EDIT THIS BLOCK ONCE. Everything on the site reads from here.
+# ─────────────────────────────────────────────────────────────
+
+author:
+  name: "Your Name"
+  # One line that says what you are, fast. Keep it scannable.
+  tagline: "Computational physics · numerical linear algebra · GPU computing"
+
+email: "you@example.com"
+
+# Just the handle / path, no full URL needed for these two:
+github_username: "yourhandle"
+linkedin_handle: "yourhandle"
+
+# Optional — leave as "" to hide the link automatically:
+scholar_url: ""        # e.g. "https://scholar.google.com/citations?user=XXXX"
+orcid_url: ""          # e.g. "https://orcid.org/0000-0000-0000-0000"
+
+# Path to your CV PDF (drop the file in /assets/cv.pdf):
+cv_pdf: "/assets/cv.pdf"
+
+# ─────────────────────────────────────────────────────────────
+#  You usually don't need to touch anything below this line.
+# ─────────────────────────────────────────────────────────────
+
+title: "Your Name"
+description: "Computational physics, numerical linear algebra, and GPU computing."
+lang: en
+
+# Clean URLs (/projects/ instead of /projects.html)
+permalink: pretty
+
+# Native GitHub Pages build — no theme gem, we ship our own layout.
+plugins:
+  - jekyll-seo-tag
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor

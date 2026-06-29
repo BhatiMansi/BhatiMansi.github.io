@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.title %}{{ page.title }} · {{ site.author.name }}{% else %}{{ site.author.name }}{% endif %}</title>
+  {% seo %}
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="{{ '/' | relative_url }}">{{ site.author.name }}</a>
+      <p class="brand-tagline">{{ site.author.tagline }}</p>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>Home</a>
+        <a href="{{ '/projects/' | relative_url }}"{% if page.url contains '/projects' %} aria-current="page"{% endif %}>Projects</a>
+        <a href="{{ '/research/' | relative_url }}"{% if page.url contains '/research' %} aria-current="page"{% endif %}>Research</a>
+        <a href="{{ '/cv/' | relative_url }}"{% if page.url contains '/cv' %} aria-current="page"{% endif %}>CV</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    {{ content }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <nav class="links" aria-label="Profiles and contact">
+        <a href="https://github.com/{{ site.github_username }}">GitHub</a>
+        <a href="https://www.linkedin.com/in/{{ site.linkedin_handle }}/">LinkedIn</a>
+        <a href="mailto:{{ site.email }}">Email</a>
+        {% if site.scholar_url != "" %}<a href="{{ site.scholar_url }}">Scholar</a>{% endif %}
+        {% if site.orcid_url != "" %}<a href="{{ site.orcid_url }}">ORCID</a>{% endif %}
+      </nav>
+      <p class="colophon">© {{ 'now' | date: "%Y" }} {{ site.author.name }}. Built with Jekyll on GitHub Pages.</p>
+    </div>
+  </footer>
+</body>
+</html>
