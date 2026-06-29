@@ -143,11 +143,30 @@ strong { color: var(--ink); font-weight: 650; }
 .site-footer .links a { color: var(--body); }
 .colophon { color: var(--muted); font-size: .82rem; margin: .9rem 0 0; }
 
+/* ---- About / profile section ---- */
+.about-section { margin: 1.5rem 0 0; }
+.about-hero { display: flex; gap: 2rem; align-items: flex-start; }
+.profile-photo {
+  width: 140px; height: 140px; border-radius: 50%;
+  object-fit: cover; flex-shrink: 0;
+  border: 2px solid var(--rule);
+  background: var(--chip-bg);
+}
+.about-text { flex: 1; min-width: 0; }
+
+/* ---- Research paper list ---- */
+.paper-list { list-style: none; padding: 0; margin: 0; }
+.paper-list li { padding: .85rem 0; border-bottom: 1px solid var(--rule); font-size: .95rem; line-height: 1.55; }
+.paper-list li:last-child { border-bottom: 0; }
+.paper-meta { display: block; color: var(--muted); font-size: .88rem; margin-top: .2rem; }
+
 /* ---- Responsive ---- */
 @media (max-width: 480px) {
   body { font-size: 16px; }
   .site-header { padding-top: 1.8rem; }
   .brand { font-size: 1.35rem; }
+  .about-hero { flex-direction: column; align-items: center; text-align: center; }
+  .about-hero .tags { justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
