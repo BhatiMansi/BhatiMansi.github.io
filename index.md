@@ -27,23 +27,18 @@ permalink: /
 <h2 id="projects">Projects</h2>
 
 <div class="item">
-  <h3>Iterative Eigensolvers</h3>
-  <p class="meta">Coming soon</p>
+  <h3><a href="{{ '/writing/gpu-eigensolver/' | relative_url }}">Matrix-Free Davidson Eigensolvers on GPUs</a></h3>
+  <p class="meta">Technical writeup · matrix-free Davidson · 8.9× GPU speedup</p>
 </div>
 
 <div class="item">
-  <h3>XeBees</h3>
-  <p class="meta">Coming soon</p>
+  <h3><a href="{{ '/writing/tensor-network-gpu/' | relative_url }}">GPU-Accelerated Tensor Network Contraction</a></h3>
+  <p class="meta">Princeton × NVIDIA Open Hackathon · cluster-corrected belief propagation</p>
 </div>
 
 <div class="item">
-  <h3>Open Hackathon Project: A GPU-Accelerated Tensor Network Contraction Algorithm</h3>
-  <p class="meta">Coming soon</p>
-</div>
-
-<div class="item">
-  <h3>Quantum Geometry — Born–Oppenheimer Notes</h3>
-  <p class="meta">Notes · PDF coming soon</p>
+  <h3><a href="{{ '/writing/quantum-geometry-notes.pdf' | relative_url }}">Quantum Geometry — Born–Oppenheimer Notes</a></h3>
+  <p class="meta">Notes · PDF</p>
 </div>
 
 <div class="item">
