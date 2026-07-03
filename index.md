@@ -6,7 +6,7 @@ permalink: /
 
 <section class="about-section" id="about">
   <div class="about-hero">
-    <img class="profile-photo" src="{{ '/assets/IMG_4121.png' | relative_url }}" alt="Mansi Bhati">
+    <img class="profile-photo" src="{{ '/assets/fix_img.png' | relative_url }}" alt="Mansi Bhati">
     <div class="about-text">
       <h1 class="about-name">Mansi Bhati</h1>
       <p>I am a theoretical chemistry PhD student at Princeton, working in <a href="https://subotnikgroup.chemistry.princeton.edu/index.html">Prof. Joe Subotnik's group</a>, where I develop new quantum theories and computational methods to describe how electrons and atomic nuclei move together inside molecules. Most molecular simulations rely on the century-old Born–Oppenheimer approximation, which assumes that electrons adjust almost instantly to the motion of the nuclei—an enormously successful picture that nonetheless misses important effects when molecules rotate, vibrate, or exchange momentum between electrons and nuclei. My research goes beyond it by developing <strong>phase-space approaches to electronic structure</strong>, in which the electronic problem depends not only on nuclear positions but also on nuclear momenta. This perspective captures geometric forces, such as Coriolis and centrifugal effects in molecules, as well as angular momentum transfer between electrons and nuclei--effects that are often hidden or treated perturbatively in conventional molecular theory.</p>
