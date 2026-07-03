@@ -38,6 +38,11 @@ body {
 
 .wrap { width: 100%; max-width: var(--measure); margin: 0 auto; padding: 0 1.25rem; }
 
+/* ---- Images ---- */
+img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 4px; }
+figure { margin: 1.5rem 0; }
+figure img { margin: 0 auto; }
+
 /* ---- Links ---- */
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-dk); text-decoration: underline; text-underline-offset: 2px; }
