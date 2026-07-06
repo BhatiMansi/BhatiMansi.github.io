@@ -37,11 +37,6 @@ permalink: /
 </div>
 
 <div class="item">
-  <h3><a href="{{ '/writing/quantum-geometry-notes.pdf' | relative_url }}">Quantum Geometry — Born–Oppenheimer Notes</a></h3>
-  <p class="meta">Notes · PDF</p>
-</div>
-
-<div class="item">
   <h3><a href="{{ '/writing/seminar_slides.pdf' | relative_url }}">Third-Year Seminar Slides</a></h3>
   <p class="meta">Slides · PDF</p>
 </div>

@@ -9,33 +9,39 @@ mathjax: true
 
 By Mansi Bhati
 
-Most molecular simulations begin with the Born-Oppenheimer (BO) approximation:
-because nuclei are much heavier than electrons, the nuclei are usually treated as
-fixed particles while only the electronic quantum problem is solved. That
-approximation is enormously successful, but it also removes the fully quantum
-coupling between nuclear and electronic motion. This project studies a
-phase-space approach that restores these nuclear-electronic correlations at close
-to BO cost.
+Most molecular simulations begin with the Born-Oppenheimer (BO) approximation.
+Because nuclei are much heavier than electrons, BO treats the nuclei as almost
+frozen while solving the electronic quantum problem. This is the standard reason
+chemists can talk about an electronic energy surface as a function of nuclear
+geometry. The approximation is enormously useful, but it also removes part of the
+fully quantum feedback between nuclear motion and electronic motion. The theory
+behind this project asks whether some of that missing nuclear-electronic
+correlation can be restored without paying the full cost of an exact
+electron-nuclear calculation.
 
-To validate that theory, the calculation needs a benchmark where the quantum
-mechanics can be solved essentially exactly. The benchmark here is the three-body
-$$H_2^+$$-like model: two nuclei and one electron. In the lab frame this has nine
-spatial degrees of freedom, but translation and rotation symmetries reduce the
-exact problem to three internal coordinates. Even then, a modest grid of 100
-points per coordinate gives a million real-space grid coefficients in the
-wavefunction, or two million complex coefficients once electron spin is included.
+The benchmark is the smallest molecular system that still contains this coupling:
+an $H_2^+$-like three-body problem with two nuclei and one electron. In the lab
+frame, the three particles have nine spatial coordinates. Overall translation and
+rotation do not change the internal energy, so the physical problem can be
+reduced to three internal coordinates. That reduction is what makes the problem
+possible to study exactly enough to validate the new phase-space theory.
 
-The computational task is therefore the central one in this post: for every
-phase-space point `(R, P)`, diagonalize a two-million-dimensional quantum
-Hamiltonian well enough to extract only the lowest few energies. This is a
-technical writeup accompanying the manuscript https://arxiv.org/abs/2605.27053.
+Even after this reduction, the exact benchmark is computationally sharp. For
+each sampled nuclear position and momentum `(R, P)`, we need the lowest few
+eigenenergies of a slightly different Hamiltonian. Sampling the phase-space
+surface therefore turns one exact quantum problem into thousands of related large
+eigenvalue problems.
 
-**TL;DR.** A two-million-dimensional Hamiltonian is never formed explicitly.
-The post compares different matrix-free iterative eigensolvers, uses Davidson to
-extract the lowest few eigenpairs on the GPU, profiles the solver, and finds that
-basis management — not the Hamiltonian application — dominates runtime. Shrinking
-the Davidson subspace and adding a reduced-basis initial guess gives an **8.9×
-production speedup** with energies unchanged to double-precision accuracy.
+This writeup is the computational companion to the manuscript
+<https://arxiv.org/abs/2605.27053>. It explains how the Hamiltonian's structure
+changes the problem from "diagonalize an impossibly big matrix" into "apply a sparse,
+structured operator many times," and why that distinction makes GPUs useful.
+
+**TL;DR.** The two-million-dimensional Hamiltonian is never built explicitly.
+Instead, we apply it matrix-free, use its Hermitian and sparse structure to
+compare iterative eigensolvers, choose Davidson to extract the lowest few
+eigenpairs on the GPU, and then use profiling to show how reduced-basis warm
+starts make the repeated phase-space solves much faster.
 
 ---
 
@@ -293,7 +299,7 @@ three things: **project**, **measure**, **expand**.
 
 **Initial guess eigenvectors.** The subspace has to be seeded with an initial
 guess. A cold start uses a crude guess, such as a few unit vectors near the grid
-points of lowest potential energy, or random vectors. But recall property (3):
+points of lowest potential energy. But recall property (3):
 neighboring `(R, P)` points have nearly identical eigenvectors. In production,
 the code therefore **warm-starts** by seeding the basis with the converged
 eigenvectors from the previous grid point. That guess is already close to the
