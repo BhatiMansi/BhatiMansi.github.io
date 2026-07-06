@@ -37,11 +37,13 @@ This writeup is the computational companion to the manuscript
 changes the problem from "diagonalize an impossibly big matrix" into "apply a sparse,
 structured operator many times," and why that distinction makes GPUs useful.
 
-**TL;DR.** The two-million-dimensional Hamiltonian is never built explicitly.
-Instead, we apply it matrix-free, use its Hermitian and sparse structure to
-compare iterative eigensolvers, choose Davidson to extract the lowest few
-eigenpairs on the GPU, and then use profiling to show how reduced-basis warm
-starts make the repeated phase-space solves much faster.
+**TL;DR.** A calculation defined by a two-million-dimensional Hermitian
+eigenproblem, repeated thousands of times, was profiled and optimized around the
+actual GPU bottleneck: Davidson's basis machinery. That insight produced an
+**8.9× production speedup with machine-precision-identical energies**. The key was
+not a faster Hamiltonian application; it was shrinking the Davidson subspace and
+replacing single-point warm starts with a reduced-basis projection over the affine
+`P`-structure of the problem.
 
 ---
 
@@ -458,36 +460,16 @@ algorithm around that measured cost profile.
 
 ## Part 2 — Profiling-Driven Optimization and Production Results
 
-Part 1 ended with a promise: Davidson was chosen because it allows the algorithm
-to inject problem structure. The next question is where that structure should be
-injected. The workflow was therefore profile first, then optimize. That order
-mattered.
+In Part 1 we concluded that Davidson was chosen to be the optimal algorithm for this problem structure. Next we look at ways to profile first, and then optimize these calculations.
 
 ### 2.1 Profiling Result: Basis Operations Dominate
 
 In classical quantum chemistry, Davidson is usually motivated by the fact that
 applying `H` is expensive. Standard implementations spend algorithmic effort to
 reduce the number of matvecs and tolerate some bookkeeping around them. On the
-GPU implementation here, the profile said the opposite.
+GPU implementation here, the profile said the opposite. 
 
-On a representative warmed-up solve, all ~106 Hamiltonian applications together
-took **0.69 s out of a 45.84 s solve**, about **1.5%** of wall time. Each matvec was
-only ~6.5 ms. The remaining time was Davidson's basis machinery: reconstructing
-Ritz vectors and residuals from a large basis, doing big complex GEMMs,
-orthogonalizing against the current basis, copying large arrays, allocating
-temporaries, and synchronizing the CPU with the GPU. The single largest GPU kernel
-was a large complex GEMM from the basis work, not from applying `H`.
-
-One profiling caveat matters here. GPU work is asynchronous: CuPy can queue kernels
-and return to Python before the GPU has finished them. An NVTX range that ends at a
-synchronizing operation may inherit time from earlier queued work. For example, the
-`diagonalize Heff` range reported ~20 s regardless of subspace size, even though a
-true `m × m` diagonalization for `m = 150–300` should not dominate a 45 s solve.
-The reliable quantities are complete solve wall time, total GPU kernel time,
-kernel identities, cycle counts, and controlled comparisons between runs. Single
-NVTX ranges are useful clues, but only after checking them against the full solve.
-
-The controlled subspace runs made the inversion obvious:
+NVTX profiling for Davidson steps for different subspaces:
 
 | Operation | Subspace 300 | Subspace 200 | Subspace 150 |
 |---|---:|---:|---:|
@@ -499,11 +481,26 @@ The controlled subspace runs made the inversion obvious:
 | Complex-copy kernels | 6.71 s | 4.68 s | 4.56 s |
 | `cudaMalloc` API time | 16.75 s | 2.77 s | 1.54 s |
 
-The matvec row barely moves and is tiny. Everything else is where the seconds
-live. The matrix-free `H x` is a regular, bandwidth-friendly GPU operation. The
-expensive part is moving and combining many large basis vectors.
 
-The useful model became:
+We see that for a subspace size 300, all ~106 Hamiltonian applications together
+took **0.69 s out of a 45.84 s solve**, about **1.5%** of wall time. Each matvec was
+only ~6.5 ms. The remaining time was Davidson's basis machinery: reconstructing
+Ritz vectors and residuals from a large basis, doing big complex GEMMs,
+orthogonalizing against the current basis, copying large arrays, allocating
+temporaries, and synchronizing the CPU with the GPU. The single largest GPU kernel
+was a large complex GEMM from the basis work, not from applying `H`.
+
+One profiling caveat matters here. GPU work is asynchronous: CuPy can queue kernels
+and return to Python before the GPU has finished them. An NVTX range that ends at a
+synchronizing operation may inherit time from earlier queued work. For example, in the raw NVTX trace, `diagonalize Heff` range reported ~20 s regardless of subspace size, even though a
+true `m × m` diagonalization for `m = 150–300` should not dominate a 45 s solve.
+The reliable quantities are complete solve wall time, total GPU kernel time,
+kernel identities, cycle counts, and controlled comparisons between runs. Single
+NVTX ranges are useful clues, but only after checking them against the full solve.
+
+The Hamiltonian applications row barely moves and is tiny since `H x` is a regular, bandwidth-friendly GPU operation. The expensive part is moving and combining many large basis vectors.
+
+Therefore, a useful model is:
 
 $$
 \text{solve time} \approx (\text{number of cycles}) \times
@@ -515,7 +512,7 @@ number of cycles. The production speedup comes from doing both.
 
 ### 2.2 Optimization 1: Reduce Per-Cycle Basis Cost
 
-The basis Davidson carries is essentially two `max_space × N` arrays: the basis
+The Davidson carries essentially two `max_space × N` arrays: the basis
 `V` and its image `H V`. Large `max_space` values give the solver more room before
 restart, but every cycle becomes more expensive because the Ritz reconstruction,
 orthogonalization, copies, and temporary allocations all touch more vectors.
@@ -537,7 +534,7 @@ cycles. The supporting profiler rows above explain why: the Ritz-vector and
 residual reconstruction collapsed, and `cudaMalloc` time fell by an order of
 magnitude. The basis had been large enough to create allocator pressure and large
 GEMM/copy costs. Around **100** vectors was the useful compromise: small enough to
-make each cycle cheap, but not so small that convergence thrashed.
+make each cycle cheap, but not so small that convergence dropped.
 
 ### 2.3 Optimization 2: Improve the Initial Subspace
 
@@ -569,7 +566,7 @@ Davidson still performs the final residual check, so RBM cannot silently change
 the answer. A bad reduced-basis guess only costs extra polish cycles. A good one
 removes most of the solve.
 
-### 2.4 Production Benchmark: 8.9× at the Same Tolerance
+### 2.4 Benchmark: 8.9× at the Same Tolerance
 
 The production test used one full split: **1,602 Davidson solves** from the
 phase-space sweep (`erf_coulomb` potential, full spin-orbit coupling,
@@ -610,25 +607,7 @@ center seed and the branch-reset column. The pattern reflects the algorithm:
 full-cost solves occur only where the local reduced basis has not yet been formed;
 the remaining grid points require only a small number of polish cycles.
 
-### 2.5 Accuracy Validation
-
-A faster solver that returns a slightly different number is worthless for a
-physics calculation. The reason RBM is safe was built into its design:
-**it only changes Davidson's starting guess; Davidson still iterates to the same
-residual tolerance and performs the same final convergence check.** A bad guess can
-only cost extra polish cycles — it can never move the converged eigenvalue. The
-production data confirms this holds at scale.
-
-![Heatmap of the maximum absolute energy difference between the fresh control and the RBM run across the R/P grid, on a log color scale floored at 1e-16.](/assets/energy_agreement_heatmap.png)
-
-Comparing the RBM run against the no-RBM control point-by-point, the **maximum
-absolute energy difference across all 1,602 solves is `3.6 × 10⁻¹³`** — agreement
-to roughly thirteen significant figures, i.e. the floor of double-precision
-arithmetic. The heatmap is uniformly at that floor; the single dark column is the
-seed point, where the two runs share the identical starting vector and the
-difference is essentially zero.
-
-### 2.6 Output: The Phase-Space Energy Surface
+### 2.5 Output: The Phase-Space Energy Surface
 
 All of this exists to produce one object: the phase-space energy surface
 `E(R, P)` that the new physics method needs. For this split, the ground and
@@ -639,10 +618,9 @@ first-excited surfaces were computed in **47 minutes instead of 7 hours**:
 (Only the `R` rows belonging to this split are populated; the full surface is the
 union of all five splits.) This is the payoff of the entire numerical effort: the
 surface that was previously a multi-day computation per parameter set is now cheap
-enough to compute across the sweeps of `α`, `J`, and mass ratio that validating the
-physics actually requires.
+enough to compute across the sweeps of spin-orbit strengths, angular momentum values, and mass ratio that validating the physics actually requires.
 
-### 2.7 Technical Takeaways
+### 2.6 Technical Takeaways
 
 Most of the performance gain came from a smaller Davidson basis and a much better
 initial subspace.
@@ -661,10 +639,3 @@ initial subspace.
   result points to Chebyshev-filtered subspace iteration as the natural next
   structural alternative.
 
-**Bottom line.** A calculation defined by a two-million-dimensional Hermitian
-eigenproblem, repeated thousands of times, was profiled and optimized around the
-actual GPU bottleneck: Davidson's basis machinery. That insight produced an
-**8.9× production speedup with machine-precision-identical energies**. The key was
-not a faster Hamiltonian application; it was shrinking the Davidson subspace and
-replacing single-point warm starts with a reduced-basis projection over the affine
-`P`-structure of the problem.
