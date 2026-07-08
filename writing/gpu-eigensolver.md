@@ -481,7 +481,6 @@ NVTX profiling for Davidson steps for different subspaces:
 | Complex-copy kernels | 6.71 s | 4.68 s | 4.56 s |
 | `cudaMalloc` API time | 16.75 s | 2.77 s | 1.54 s |
 
-
 We see that for a subspace size 300, all ~106 Hamiltonian applications together
 took **0.69 s out of a 45.84 s solve**, about **1.5%** of wall time. Each matvec was
 only ~6.5 ms. The remaining time was Davidson's basis machinery: reconstructing
@@ -599,7 +598,7 @@ sweep branch has little or no history and therefore runs close to the ordinary
 warm-start cost. After two snapshots, the reduced basis is accurate enough that
 the bulk of the grid collapses to a small number of Davidson polish cycles.
 
-![Davidson cycle-count heatmaps over the R/P grid for the three configurations; RBM collapses the bulk to ~17 cycles.](/assets/performance_split1/blog_figures/cycle_heatmaps_three_way.png)
+![Davidson cycle-count heatmaps over the R/P grid for the three configurations; RBM collapses the bulk to ~17 cycles.](/assets/cycle_heatmaps_three_way.png)
 
 The two no-RBM panels are a nearly uniform ~84 cycles everywhere. The RBM panel is
 almost entirely dark (~17 cycles), except for two bright vertical stripes — the
@@ -610,8 +609,11 @@ the remaining grid points require only a small number of polish cycles.
 ### 2.5 Output: The Phase-Space Energy Surface
 
 All of this exists to produce one object: the phase-space energy surface
-`E(R, P)` that the new physics method needs. For this split, the ground and
-first-excited surfaces were computed in **47 minutes instead of 7 hours**:
+`E(R, P)` that the new physics method needs. To run the full sweep, the `R` grid
+was divided into MPI-like chunks and distributed across multiple GPUs; afterward,
+the partial surfaces were stitched back together for analysis. For the split
+shown here, the ground and first-excited surfaces were computed in **47 minutes
+instead of 7 hours**:
 
 ![Ground-state and excited-state phase-space energy surfaces over the populated R/P region for split 1.](/assets/energy_surfaces_gs_es.png)
 
@@ -638,4 +640,3 @@ initial subspace.
   most of the performance gain with less implementation risk, but the profiling
   result points to Chebyshev-filtered subspace iteration as the natural next
   structural alternative.
-
