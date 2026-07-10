@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Matrix-Free Davidson on GPUs for a 2M-Dimensional Quantum Hamiltonian
+title: Matrix-Free Davidson Iterative Diagonalization on GPUs for a 2M-Dimensional Quantum Hamiltonian
 permalink: /writing/gpu-eigensolver/
 mathjax: true
 ---
 
-# Matrix-Free Davidson on GPUs for a 2-Million-Dimensional Quantum Hamiltonian
+# Matrix-Free Davidson Iterative Diagonalization on GPUs for a 2-Million-Dimensional Quantum Hamiltonian
 
 By Mansi Bhati
 
@@ -20,8 +20,10 @@ correlation can be restored without paying the full cost of an exact
 electron-nuclear calculation.
 
 The benchmark is the smallest molecular system that still contains this coupling:
-an $H_2^+$-like three-body problem with two nuclei and one electron. In the lab
-frame, the three particles have nine spatial coordinates. Overall translation and
+an `H_2^+`-like three-body problem with two nuclei and one electron. Since there
+is only one electron, there are no electron-electron correlations, making it a
+clean system for studying electron-nuclear correlation effects. In the lab frame,
+the three particles have nine spatial coordinates. Overall translation and
 rotation do not change the internal energy, so the physical problem can be
 reduced to three internal coordinates. That reduction is what makes the problem
 possible to study exactly enough to validate the new phase-space theory.
@@ -39,7 +41,7 @@ structured operator many times," and why that distinction makes GPUs useful.
 
 **TL;DR.** A calculation defined by a two-million-dimensional Hermitian
 eigenproblem, repeated thousands of times, was profiled and optimized around the
-actual GPU bottleneck: Davidson's basis machinery. That insight produced an
+actual GPU bottleneck: the basis machinery inside Davidson iterative diagonalization. That insight produced an
 **8.9× production speedup with machine-precision-identical energies**. The key was
 not a faster Hamiltonian application; it was shrinking the Davidson subspace and
 replacing single-point warm starts with a reduced-basis projection over the affine
@@ -68,23 +70,27 @@ Here that is `4 × 10¹²` numbers; in double-precision complex (`complex128`, 1
 bytes each) that is **~64 terabytes** — for a *single* grid point. Storing `H`
 explicitly is off the table before diagonalization even begins.
 
-**(2) Only the bottom of the spectrum is needed.** In this molecular problem the
-physically relevant states are the ground state and a few low-lying excitations.
-Computing all two million eigenvalues would solve a much larger problem than the
-one physics asks for.
+Fortunately, nature gives us two useful kinds of structure: the physics only asks
+for a few low-energy states, and the real-space Hamiltonian is sparse because
+local operators only couple nearby grid points. The problem is enormous, but it
+is not structureless.
 
-**(3) The solve is repeated thousands of times.** The phase-space surface is sampled on a
+**(2) Only the bottom of the spectrum is needed.** The physically relevant states
+are the ground state and a few low-lying excitations. Computing all two million
+eigenvalues would solve a much larger problem than the one physics asks for.
+
+**(3) The matrix has helpful structure: it is sparse and partly diagonal.**
+This is the quantum-chemistry silver lining. Local operators on a real-space grid
+only couple a grid point to itself or to nearby grid points, so most possible
+matrix entries are exactly zero. `H` is a sum of physical terms with very
+different structure:
+
+**(4) The solve is repeated thousands of times.** The phase-space surface is sampled on a
 100 × 100 grid of `(R, P)` points, so this eigenproblem is solved ~**10,000 times**.
 Throughput matters as much as the cost of any single solve. Fortunately, the
 Hamiltonian changes smoothly as `(R, P)` changes, so neighboring phase-space
 points have nearly the same low-energy eigenvectors. That smoothness becomes a
 major algorithmic advantage later.
-
-**(4) The matrix has helpful structure: it is sparse and partly diagonal.**
-This is the quantum-chemistry silver lining. Local operators on a real-space grid
-only couple a grid point to itself or to nearby grid points, so most possible
-matrix entries are exactly zero. `H` is a sum of physical terms with very
-different structure:
 
 - The **potential energy** (electron–nucleus attraction, etc.) and the bulk of
   the **spin–orbit coupling** are *diagonal* or nearly so: on a real-space grid,
@@ -111,11 +117,7 @@ physical term of `H` is applied directly to the state:
   is naturally a 4-dimensional array of shape `(spin, x, y, z) = (2, 100, 100,
   100)`. To take the second derivative along, say, the `x`-axis, multiply by a
   small `100 × 100` finite-difference matrix `D_x`, applied **independently for
-  every combination of the other indices** `(spin, y, z)`.
-
-Reshape the big array so the target axis is the "rows," and the operation becomes
-one matrix–matrix multiply by the small `100 × 100` operator, batched over all the
-other indices. The three kinetic directions are three such batched GEMMs.
+  every combination of the other indices** `(spin, y, z)`. The three kinetic directions are three such batched GEMMs.
 
 > **Dimension check.** The *operators* are small — three `100 × 100`
 > 1D derivative matrices, **not** a single `100 × 100 × 100` object. What's big is
@@ -125,9 +127,11 @@ other indices. The three kinetic directions are three such batched GEMMs.
 The dense matrix-multiply-like contractions and elementwise array math, both over
 millions of complex numbers, are massively parallel and limited mainly by
 **memory bandwidth** — the rate at which data can be streamed through the chip. A
-modern GPU has far more memory bandwidth and arithmetic throughput than a CPU,
-and this workload is large, regular, and data-parallel. Across ~10,000 solves, a
-CPU would be bandwidth-starved.
+modern GPU has far more memory bandwidth than a CPU, and a single matvec contains
+enough regular, data-parallel work to keep many GPU threads busy. The Davidson
+iteration is still sequential at the algorithmic level, each correction depends
+on the previous one, but each Hamiltonian application inside that sequence is a
+large parallel kernel. Across ~10,000 solves, that per-matvec speed matters.
 
 This also explains why the implementation does not simply use a sparse-matrix
 library. A reader might expect a sparse Hamiltonian to belong in NVIDIA
@@ -146,9 +150,7 @@ To keep the dimensions concrete, momentarily ignore spin. Then `H` is a
 `Hx` produces another `100 × 100 × 100` array. Including spin only doubles the
 leading dimension; it does not change the algorithmic picture.
 
-**Idea 1 — Iterate, don't solve.** Since only `x ↦ H x` is available, the answer
-is built by repeated multiplication by `H`, refining a guess each step. Methods
-built this way are **iterative eigensolvers**.
+**Idea 1 — Iterate, don't solve. Iterate with matvecs, don’t diagonalize directly.** Since only `x ↦ Hx` is available, the eigensolver must improve approximate eigenvectors through repeated matrix-free Hamiltonian applications rather than by forming and diagonalizing H. Methods built this way are **iterative eigensolvers.**
 
 **Idea 2 — Work inside a small subspace (the projection trick / Rayleigh–Ritz).**
 The 2-million-dimensional matrix cannot be diagonalized directly, but a
@@ -159,7 +161,7 @@ routine. So:
    the columns of a tall, skinny matrix `V` (`N × m`). Keep them orthonormal.
 2. **Project** the giant problem onto that subspace: form the small matrix
    `H_eff = Vᵀ H V` (size `50 × 50` if `m = 50`). Building it costs one matvec
-   per basis vector plus a tall-skinny GEMM — cheap compared with storing `H`.
+   per basis vector plus a tall-skinny GEMM, cheap compared with storing `H`.
 3. Diagonalize the small `H_eff` exactly. Its eigenvalues `θ` approximate
    eigenvalues of `H`, and `V c` (where `c` is a small eigenvector) approximates
    the corresponding eigenvector of `H`.
@@ -171,6 +173,7 @@ method below is a different answer to the only remaining question: **which vecto
 go into `V`?**
 
 **Idea 3 — Measure error with the residual.** For a candidate eigenpair `(θ, u)`,
+where `u = Vc` is the Ritz vector lifted back into the full N-dimensional space,
 the **residual** `r = H u − θ u` measures how far `u` is from being a true
 eigenvector. If `r = 0`, `u` is exact. The size `‖r‖` is the convergence
 yardstick and, crucially, the signal for *how to improve the guess*.
@@ -196,6 +199,14 @@ There are two grand strategies:
 - **Preconditioned residuals** (the *Davidson* strategy): build `V` by repeatedly
   correcting the current estimate with `M⁻¹ r`.
 
+There is a nice bit of intellectual lineage hiding in those names. Krylov
+methods come from numerical linear algebra's older tradition of extracting
+information from repeated matrix-vector products; Alexei Krylov introduced the
+idea in the 1930s while studying characteristic polynomials. Lanczos, who later
+adapted that idea to Hermitian eigenproblems, was a Hungarian mathematician and
+physicist whose career ran through relativity, numerical analysis, and applied
+computation. Davidson came from a very different pressure point: quantum
+chemistry.
 
 **Dense diagonalization (LAPACK `*heevd`, NVIDIA cuSOLVER) — infeasible.**
 
@@ -220,15 +231,21 @@ extremal eigenvalues — now the easy ones to find. (This is why ARPACK/SciPy us
 are told to use `which='LM', sigma=0` rather than asking for "smallest magnitude"
 directly.)
 
-The catch: applying `(H − σI)⁻¹` to a vector means *solving the linear system*
-`(H − σI) z = b` at every iteration. Done directly, that requires a
-**factorization** of `H − σI` (e.g. LU: writing it as a product of triangular
-matrices solvable by substitution). Factorization is `O(N³)` and, for a
-sparse matrix, suffers **fill-in** — the zeros turn into nonzeros, so the factors
-need vastly more memory than the original sparse operator. With a matrix-free `H`,
-there are no explicit entries to factor. So shift-invert, the textbook fast path
-to small eigenvalues, is unavailable here. The bottom of the spectrum must be
-found without factorization, which raises the bar on the preconditioner (§1.5).
+The catch is that applying `(H − σI)⁻¹` to a vector does not mean forming the
+inverse explicitly. It means solving a linear system,
+`(H − σI) z = b`, at every iteration. The standard way to make those repeated
+solves fast is to factor `H − σI` once — for example, rewrite it as triangular
+factors that can be solved by back-substitution — and then reuse those factors
+for many right-hand sides.
+
+That standard route is unavailable here. With a matrix-free `H`, there are no
+explicit entries to factor in the first place. Even if the sparse matrix were
+built, its factors would usually suffer **fill-in**: the triangular factors
+contain nonzero entries in places where the original sparse matrix had zeros, so
+they can require vastly more memory than the original operator. Shift-invert is
+therefore the textbook fast path to small eigenvalues, but not a practical path
+for this calculation. The bottom of the spectrum has to be found without
+factorization, which raises the bar on the preconditioner (§1.5).
 
 **Krylov methods — Lanczos / ARPACK — matrix-free baseline.**
 A **Krylov subspace** is `span{x, Hx, H²x, …, H^{m−1}x}` — the span of `x` and its
@@ -237,9 +254,10 @@ matrix-free. The **Lanczos** method is the specialized, numerically careful way 
 build an orthonormal basis of this subspace when `H` is Hermitian: a short
 three-term recurrence generates each new basis vector from the previous two.
 (Terminology: *Krylov* is the family; **Lanczos** is its Hermitian member, and
-**Arnoldi** the general-matrix one. "ARPACK" is the famous library implementing a
-restarted Arnoldi/Lanczos.) Lanczos then does Rayleigh–Ritz (Idea 2) on that
-basis. Two limitations matter for us:
+**Arnoldi** the general-matrix one. "ARPACK" is the famous 1990s library that
+made implicitly restarted Arnoldi/Lanczos the default black-box tool in packages
+like MATLAB and SciPy.) Lanczos then does Rayleigh–Ritz (Idea 2) on that basis.
+Two limitations matter for us:
 
 - **No preconditioner.** A Krylov subspace is rigidly determined by powers of `H`
   alone; there is no place to inject approximate physics such as "the diagonal
@@ -260,7 +278,14 @@ vectors go into `V`": instead of the next power `Hx`, it appends the
 subspace it builds is therefore *not* a Krylov subspace — it's adaptively bent
 toward the eigenvectors using whatever knowledge of `H` is baked into `M`. That
 single hook, the freedom to choose `M`, is the entire reason to prefer it here.
-The mechanics are in §1.4, and the case for *why* that freedom helps is §1.5.
+Ernest Davidson introduced this style of iteration in the 1970s for exactly the
+kind of problem quantum chemists kept meeting: very large CI Hamiltonians where
+only a handful of low-energy states mattered. In a CI basis, the diagonal entries
+are the energies of individual electronic configurations, while the off-diagonal
+entries are couplings between configurations. When one or a few reference
+configurations dominate, `diag(H) - θI` is not a throwaway approximation; it is a
+cheap piece of chemical information. More explanation about the algorithm is in
+§1.4 and §1.5.
 
 **Three close relatives.** These are variations on the Davidson
 idea kept in reserve rather than used here:
@@ -382,54 +407,32 @@ cuts single-solve wall time by ~43%.
 
 ### 1.5 Why Davidson Fits This Hamiltonian
 
-Lanczos is the canonical unpreconditioned matrix-free method: once the starting
-vector is chosen, the subspace is determined by `x, Hx, H²x, ...`. Davidson is the
-canonical preconditioned version: it still uses Rayleigh–Ritz, but it grows the
-subspace using `M⁻¹r`, so the algorithm can inject an approximate inverse of the
-operator.
+The CI story explains why Davidson is tempting, but it does not automatically
+make it right here. Diagonal dominance is not a mystical property of a molecule;
+it is a property of the representation. The same Hamiltonian can look strongly
+diagonal in a CI basis and much less so on a real-space grid.
 
-With a constant do-nothing preconditioner, the Davidson correction is just a
-scaled residual, and the method behaves like an unpreconditioned Krylov method.
-Davidson only helps when `M⁻¹` is a meaningfully better approximation to
-`(H - θI)⁻¹` than a scalar multiple of the identity.
+On this grid, the kinetic energy is a finite-difference stencil, so it spreads
+amplitude to neighboring points and weakens diagonal dominance. The
+position-dependent potential, however, is exactly diagonal, and it is large
+enough in the full Hamiltonian that the simple Jacobi preconditioner
+`diag(H) - θI` is still a reasonable first model of `H - θI`. Gershgorin's
+theorem gives the useful mental picture: when a row's diagonal entry is large
+compared with the sum of its off-diagonal couplings, the eigenvalues stay close
+to the diagonal entries, so a diagonal preconditioner has a real chance.
 
-The classic quantum-chemistry case where Davidson works spectacularly is
-configuration interaction (CI). In a CI basis, the diagonal entries are the
-energies of individual electronic configurations, while the off-diagonal entries
-are couplings between different configurations. Usually one or a few reference
-configurations dominate the low-energy state, and the couplings to the many other
-configurations are comparatively small. That makes the CI Hamiltonian strongly
-diagonally dominant in the basis where the calculation is written, so
-`diag(H) - θI` is a surprisingly good cheap model of `H - θI`. This is why
-Davidson was invented by quantum chemists and why it became their default
-large-CI eigensolver.
+That is the practical reason to choose Davidson here: it can use the diagonal
+physics when Jacobi is good enough, but it also leaves room for better
+structure-aware corrections when Jacobi is not. Part 2 tests exactly that with a
+Fast Diagonalization preconditioner: because the kinetic operator is separable on
+a tensor-product grid, its one-dimensional stencil matrices can be diagonalized
+once and reused to apply an approximate inverse cheaply. That preconditioner did
+not improve this problem, but Davidson gave enough flexibility to test it.
 
-Diagonal dominance is not a mystical property of the molecule; it is a property
-of the representation. The same Hamiltonian can look diagonally dominant in one
-basis and much less so in another. On a real-space grid like ours, the kinetic
-energy is a finite-difference stencil, so it explicitly spreads amplitude to
-neighboring grid points. That weakens diagonal dominance relative to CI. On the
-other hand, the position-dependent potential is exactly diagonal, and in the full
-Hamiltonian it is large enough that the simple Jacobi preconditioner is still a
-reasonable model. A useful mental check is Gershgorin's theorem: if the diagonal
-entry in a row is large compared with the sum of the off-diagonal couplings in
-that row, the eigenvalues stay close to the diagonal entries, and a diagonal
-preconditioner has a real chance.
-
-The reason to choose Davidson here has two parts. First, the full Hamiltonian has
-enough diagonal structure that the cheap Jacobi correction is not absurd. Second,
-Davidson leaves room to try better structure-aware corrections
-when Jacobi is not enough. Part 2 tests exactly that idea with a Fast
-Diagonalization preconditioner: because the kinetic operator is separable on a
-tensor-product grid, its one-dimensional stencil matrices can be diagonalized
-once and reused to apply an approximate inverse cheaply. That preconditioner
-ended up not improving this problem, but Davidson gave enough flexibility to test
-it.
-
-Davidson also matches the other two pieces of structure in this calculation:
-several nearby roots are needed at once, so a blocked method is natural; and the
-code solves neighboring `(R, P)` points, so warm starts are extremely valuable.
-Those features, plus preconditioner flexibility, are the through-line into Part 2.
+The same choice also fits the production workflow: several nearby roots are
+needed at once, so a blocked method is natural, and neighboring `(R, P)` points
+have similar eigenvectors, so warm starts are valuable. Preconditioning,
+blocking, and warm starts are the three levers carried into Part 2.
 
 ### 1.6 Solver Comparison
 
