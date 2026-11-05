@@ -8,7 +8,7 @@ mathjax: true
 # GPU-Accelerated Cluster-Corrected Belief Propagation for Tensor Networks
 Mansi Bhati
 
-*A hackathon project accelerating the tensor-network contraction algorithm developed by **Siddhant Midha** (Princeton Quantum Initiative) and **Frank Zhang** (ECE), with mentors **Lars Nyland** (NVIDIA) and **Congyue Cui** (Princeton), during the Open Hackathons program. Implementation in **Julia + CUDA.jl** on an **NVIDIA A100 80GB PCIe**.*
+*A project accelerating the tensor-network contraction algorithm developed by **Siddhant Midha** (Princeton Quantum Initiative) and **Frank Zhang** (ECE), with mentors **Lars Nyland** (NVIDIA) and **Congyue Cui** (Princeton), during the Open Hackathons program. Implementation in **Julia + CUDA.jl** on an **NVIDIA A100 80GB PCIe**.*
 
 ---
 
@@ -16,20 +16,20 @@ Mansi Bhati
 
 Tensor networks are one of the most important representations in modern computational physics and chemistry. The idea is simple: replace a giant, exponentially large object — a partition function, a wavefunction, a probability distribution — with a *graph* in which each vertex holds a small tensor and each edge represents a shared index. The full object is recovered by **contracting** the network, i.e. multiplying all the tensors together and summing over every shared index.
 
-They show up almost everywhere physicists care about many degrees of freedom at once:
-
-- **Statistical mechanics.** The Ising model, the Potts model, and almost any classical lattice model can be written as a tensor network whose contraction is exactly the *partition function*, $$Z = \sum_{\text{states}} e^{-\beta H}$$. Why do we care about $$Z$$? Because once you know $$Z$$ you know essentially everything about the thermodynamics of the system: the free energy is $$F = -k_B T \log Z$$, correlation functions and magnetisations are derivatives of $$\log Z$$, and phase transitions show up as singularities in $$\log Z$$. Computing $$Z$$ is the whole game.
-- **Quantum many-body physics.** Ground states and time evolution of strongly correlated electron systems, spin liquids, and superconductors are naturally represented by tensor-network ansätze like MPS, PEPS, and MERA. Contracting these networks is how one extracts expectation values, entanglement entropies, and dynamical correlators.
-- **Quantum chemistry.** Electronic-structure methods such as DMRG, tensor-hyper-contraction, and coupled cluster with tensor decompositions turn intractable Fock-space sums into contractions of small-tensor networks whose topology reflects the molecule.
-- **Quantum computing and error correction.** Simulating a quantum circuit is itself a tensor-network contraction: every gate is a tensor and every qubit-timeline is a bond. In quantum error correction, decoders need *syndrome probabilities* — given a set of parity-check measurement outcomes (the "syndrome"), what is the probability of the underlying error pattern, or, equivalently, what is the most likely error? Computing that probability is a marginalisation of a large tensor network over its bond indices, and it is the bottleneck of every modern surface-code-style decoder.
-
-![Tensor network contraction](/assets/blog_images/fig_tensor_network.png)
-
 Formally, on a graph $$G=(V,E)$$ with a tensor $$T_v$$ at each vertex, the contraction is
 
 $$
 Z \;=\; \sum_{\text{all bond indices}} \; \prod_{v \in V} T_v .
 $$
+
+
+They show up almost everywhere physicists care about many degrees of freedom at once:
+
+- **Statistical mechanics.** The Ising model, the Potts model, and almost any classical lattice model can be written as a tensor network whose contraction is exactly the *partition function*, $$Z = \sum_{\text{states}} e^{-\beta H}$$. If we know $$Z$$, we essentially know everything about the thermodynamics of the system: the free energy is $$F = -k_B T \log Z$$, correlation functions and magnetisations are derivatives of $$\log Z$$, and phase transitions show up as singularities in $$\log Z$$. 
+- **Quantum many-body physics.** Ground states and time evolution of strongly correlated electron systems, spin liquids, and superconductors are naturally represented by tensor-network ansätze like MPS, PEPS, and MERA. Contracting these networks is how one extracts expectation values, entanglement entropies, and dynamical correlators.
+- **Quantum chemistry.** Electronic-structure methods such as DMRG, tensor-hyper-contraction, and coupled cluster with tensor decompositions turn intractable Fock-space sums into contractions of small-tensor networks whose topology reflects the molecule.
+- **Quantum computing and error correction.** Simulating a quantum circuit is itself a tensor-network contraction: every gate is a tensor and every qubit-timeline is a bond. In quantum error correction, decoders need *syndrome probabilities* — given a set of parity-check measurement outcomes (the "syndrome"), what is the probability of the underlying error pattern, or, equivalently, what is the most likely error? Computing that probability is a marginalisation of a large tensor network over its bond indices, and it is the bottleneck of every modern surface-code-style decoder.
+
 
 ### A concrete example: the 2D classical Ising model
 
@@ -47,7 +47,7 @@ This blog is about one such approximation — **Belief Propagation (BP) with clu
 
 ---
 
-## 2. The algorithm in one page
+## 2. The algorithm 
 
 ### 2.1 Belief propagation
 
@@ -59,15 +59,15 @@ $$
 \mu^{(k+1)}_{v \to w} \;\propto\; \sum_{\text{legs of } T_v} T_v \prod_{u \in \partial v \setminus \{w\}} \mu^{(k)}_{u \to v},
 $$
 
-and then renormalises. The intuition is straightforward: the message that $$v$$ sends to $$w$$ should summarise the whole graph *minus* $$w$$, viewed from $$v$$.
+and then renormalises. The intuition is that the message that $$v$$ sends to $$w$$ should summarise the whole graph *minus* $$w$$, viewed from $$v$$.
 
-On a tree this converges in a single sweep in each direction and is exact. On a graph with cycles it becomes an **approximate fixed-point iteration**: you keep applying the update until the messages stop changing (below some tolerance), and the resulting messages define an approximate partition function
+On a tree this converges in a single sweep in each direction and is exact. xxx consider removing xxx. On a graph with cycles it becomes an **approximate fixed-point iteration**: you keep applying the update until the messages stop changing (below some tolerance), and the resulting messages define an approximate partition function
 
 $$
 Z_{\text{BP}} \;=\; \prod_v z_v \Big/ \prod_e z_e,
 $$
 
-where each $$z_v$$ and $$z_e$$ is a small local contraction against the converged messages. BP is very cheap — one iteration touches every edge once — and it is known to give an excellent answer whenever $$G$$ is "tree-like enough", i.e. whenever loops in the graph do not create too much correlated feedback. For 2D lattices near a phase transition, however, loops matter and BP alone is systematically wrong. That is where cluster corrections come in.
+where each $$z_v$$ and $$z_e$$ is a small local contraction against the converged messages. BP is very cheap — one iteration touches every edge once — and it is known to give an excellent answer whenever $$G$$ is "tree-like enough", i.e. whenever loops in the graph do not create too much correlated feedback. For 2D lattices near a phase transition, however, loops matter and BP alone is systematically wrong. xxx why wrong? That is where cluster corrections come in.
 
 ### 2.2 The cluster correction
 
@@ -96,7 +96,7 @@ Getting from a raw lattice to $$\log Z$$ means going through **three** distinct 
 
 1. **Preprocessing (offline).** Enumerate all loops up to a chosen weight, translate them across the lattice, and group them into connected clusters. This is a combinatorial graph-search problem — no floating point at all. Expensive, but you only pay it once and cache the result to disk.
 2. **Belief propagation (online).** Iteratively solve the fixed-point equation above for the messages living on the directed edges of $$G$$. Dense linear-algebra-flavoured, with a *lot* of independent work per iteration.
-3. **Loop + cluster contraction (online).** Use the converged BP messages to compute one number $$Z_\ell$$ per unique loop, then combine those numbers according to each cluster. Thousands of small, oddly-shaped tensor contractions — the awkward middle child between BLAS and graph search.
+3. **Loop + cluster contraction (online).** Use the converged BP messages to compute one number $$Z_\ell$$ per unique loop, then combine those numbers according to each cluster. Thousands of small, oddly-shaped tensor contractions — the awkward middle child between BLAS and graph search. xxxremove this child thingxxx
 
 The plots throughout the rest of this post live at each of these stages.
 
@@ -171,8 +171,6 @@ The rank-by-rank profile shows this is because the workers really do spend almos
 
 Rank 0 (the coordinator) spends a big chunk in MPI receives, canonical parenting, and BFS seed generation — expected, since it's dispatching work — while ranks 1–5 (the workers) spend most of their time in DFS expansion and canonical-parent hashing. In other words: the workers are compute-bound, communication is a thin band, and there is no serialisation bottleneck. That is why we get near-ideal scaling in the plot above.
 
-**Takeaway.** Preprocessing is a graph-enumeration problem, not a linear-algebra problem, so we treat it as MPI-parallel across ranks rather than GPU-parallel across threads. That already turns a job that would have taken over a thousand seconds into something that fits comfortably in a coffee break.
-
 ---
 
 ## 4. Stage 2 — Belief Propagation: one GPU thread per directed message
@@ -243,7 +241,7 @@ The BP kernel is pleasant because every thread does *the same* amount of work: `
 
 ![Inherent parallelizability: clusters, loop tensors, and cluster-corrected BP](/assets/blog_images/fig_parallelizability.png)
 
-A single job on a $$20\times20$$ periodic Ising lattice with max cluster weight 12 involves, from our CSV run:
+A single job on a $$20\times20$$ periodic Ising lattice with max cluster weight 12 involves:
 
 - **302 unique loops** used out of a preprocessed pool of many more,
 - **110,400 loop instances** after translating those loops around the lattice,

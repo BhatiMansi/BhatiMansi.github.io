@@ -20,7 +20,7 @@ correlation can be restored without paying the full cost of an exact
 electron-nuclear calculation.
 
 The benchmark is the smallest molecular system that still contains this coupling:
-an `H_2^+`-like three-body problem with two nuclei and one electron. Since there
+a $$H_2^+$$-like three-body problem with two nuclei and one electron. Since there
 is only one electron, there are no electron-electron correlations, making it a
 clean system for studying electron-nuclear correlation effects. In the lab frame,
 the three particles have nine spatial coordinates. Overall translation and
@@ -199,10 +199,8 @@ There are two grand strategies:
 - **Preconditioned residuals** (the *Davidson* strategy): build `V` by repeatedly
   correcting the current estimate with `M⁻¹ r`.
 
-There is a nice bit of intellectual lineage hiding in those names. Krylov
-methods come from numerical linear algebra's older tradition of extracting
-information from repeated matrix-vector products; Alexei Krylov introduced the
-idea in the 1930s while studying characteristic polynomials. Lanczos, who later
+Alexei Krylov introduced the
+idea of Krylov methods in the 1930s while studying characteristic polynomials. Lanczos, who later
 adapted that idea to Hermitian eigenproblems, was a Hungarian mathematician and
 physicist whose career ran through relativity, numerical analysis, and applied
 computation. Davidson came from a very different pressure point: quantum
@@ -313,7 +311,7 @@ idea kept in reserve rather than used here:
   repeatedly apply a polynomial of `H` (a Chebyshev polynomial) chosen to *amplify*
   the low-energy states and *suppress* the rest, then do one small Rayleigh–Ritz.
   It trades *extra cheap matvecs* for *less* of the expensive subspace bookkeeping
-  — which, as Part 2's profiling shows, is exactly the trade this GPU workload
+  which, as Part 2's profiling shows, is exactly the trade this GPU workload
   rewards.
   It's the most interesting structural alternative after the RBM path developed
   below.
@@ -387,7 +385,7 @@ Rayleigh–Ritz estimate — next time.
 `H` by just its diagonal: `t = (diag(H) − θ)⁻¹ r`, which is a trivial elementwise
 divide. The bet is that `diag(H)` captures enough of `H` to point the correction
 in roughly the right direction. **How good that bet is depends entirely on how
-much of `H` actually lives on the diagonal** — which is the crux of §1.5.
+much of `H` actually lives on the diagonal** which is the crux of §1.5.
 
 This is the practical preconditioning rule from iterative linear algebra: a useful
 `M` must be cheap to invert, nonsingular, and close enough to the operator that it

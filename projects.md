@@ -30,6 +30,12 @@ permalink: /projects/
 <h2>More work</h2>
 
 <div class="item">
+  <h3><a href="{{ '/writing/Numerical_Methods_Bootcamp.pdf' | relative_url }}">Numerical Methods for HPC</a></h3>
+  <p class="meta">Bootcamp slides · PDF</p>
+  <p>An introduction to numerical methods for high-performance scientific computing, covering linear algebra, sparse matrices, data movement, and precision.</p>
+</div>
+
+<div class="item">
   <h3>Tensor networks &amp; belief propagation — Princeton NVIDIA Hackathon</h3>
   <p class="meta">Princeton &times; NVIDIA Open Hackathon</p>
   <p>A GPU-accelerated approach to contracting tensor networks using belief-propagation-style message passing. [One or two sentences on what you built, the result, and what you learned — e.g. the speedup, the library you used, or the part you owned on the team.]</p>

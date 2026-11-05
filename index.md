@@ -37,6 +37,11 @@ permalink: /
 </div>
 
 <div class="item">
+  <h3><a href="{{ '/writing/Numerical_Methods_Bootcamp.pdf' | relative_url }}">Numerical Methods for HPC</a></h3>
+  <p class="meta">Bootcamp slides · PDF</p>
+</div>
+
+<div class="item">
   <h3><a href="{{ '/writing/seminar_slides.pdf' | relative_url }}">Third-Year Seminar Slides</a></h3>
   <p class="meta">Slides · PDF</p>
 </div>

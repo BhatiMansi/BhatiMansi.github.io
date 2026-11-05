@@ -1,5 +1,14 @@
-# Local preview only — GitHub Pages builds the site for you in the cloud,
-# so you don't strictly need this. Use it if you want `bundle exec jekyll serve`.
+# Local preview only — GitHub Pages builds the live site with its own toolchain
+# in the cloud, so this Gemfile just needs to render the site the same way for
+# previewing with `bundle exec jekyll serve`.
 source "https://rubygems.org"
-gem "github-pages", group: :jekyll_plugins
+
+gem "jekyll", "~> 4.3"
 gem "jekyll-seo-tag"
+
+# Stdlib gems unbundled in Ruby 3.4+/4.0 that Jekyll still expects
+gem "csv"
+gem "base64"
+gem "logger"
+gem "bigdecimal"
+gem "webrick"
