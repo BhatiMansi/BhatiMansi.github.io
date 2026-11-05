@@ -28,12 +28,12 @@ permalink: /
 
 <div class="item">
   <h3><a href="{{ '/writing/gpu-eigensolver/' | relative_url }}">Matrix-Free Davidson Eigensolvers on GPUs</a></h3>
-  <p class="meta">Technical writeup · matrix-free Davidson · 8.9× GPU speedup</p>
+  <p class="meta">Technical writeup · matrix-free Davidson</p>
 </div>
 
 <div class="item">
   <h3><a href="{{ '/writing/tensor-network-gpu/' | relative_url }}">GPU-Accelerated Tensor Network Contraction</a></h3>
-  <p class="meta">Princeton × NVIDIA Open Hackathon · cluster-corrected belief propagation</p>
+  <p class="meta">Princeton × NVIDIA Open Hackathon</p>
 </div>
 
 <div class="item">
@@ -55,9 +55,9 @@ permalink: /
     <span class="paper-meta">arXiv:2605.27053</span>
   </li>
   <li>
-    Peng, L., Duston, T., Bradbury, N., <strong>Bhati, M.</strong>, Tao, X., Rosen, M., Subotnik, J.E. (2026).
-    A Conceptual Shift In Our Understanding of Degenerate Radical Spin Systems: Spin-Rotation Coupling.
-    <span class="paper-meta">Accepted, <em>JACS</em></span>
+    Peng, L., Duston, T., Bradbury, N., <strong>Bhati, M.</strong>, Tao, X., Rosen, M. B., &amp; Subotnik, J. E. (2026).
+    <a href="https://pubs.acs.org/jacsat/article-pdf/148/34/36583/66802912/jacs.6c05615.pdf">Conceptual shift in our understanding of degenerate radical spin systems: Spin-rotation coupling turned on its head.</a>
+    <span class="paper-meta"><em>Journal of the American Chemical Society</em>, <em>148</em>(34), 36583-36593</span>
   </li>
   <li>
     Tao, Z., <strong>Bhati, M.</strong>, Subotnik, J.E. (2026).
